@@ -1,0 +1,139 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  user_id       Int       @id @default(autoincrement())
+  surname       String
+  name          String
+  patronymic    String?
+  email         String    @unique
+  password      String
+  role          UserRole  @default(REGULAR)
+  image_url     String?    
+  isVerified         Boolean @default(false) @map("is_verified")
+  isTwoFactorEnabled Boolean @default(false) @map("is_two_factor_enabled")
+  authMethod         AuthMethod
+  accounts           OAuthAccount[]
+  tokens             Token[]
+  progresses         Progress[] @relation("UserProgress")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model OAuthAccount {
+  account_id   Int      @id @default(autoincrement())
+  provider     String
+  provider_user_id String
+  accessToken  String?  @map("access_token")
+  refreshToken String?  @map("refresh_token")
+  expiresAt    DateTime? @map("expires_at")
+  user         User     @relation(fields: [userId], references: [user_id], onDelete: Cascade)
+  userId       Int      @map("user_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("oauth_accounts")
+}
+
+model Token {
+  token_id    Int       @id @default(autoincrement())
+  user        User      @relation(fields: [userId], references: [user_id], onDelete: Cascade)
+  userId      Int       @map("user_id")
+  token       String    @unique
+  type        TokenType
+  expiresAt   DateTime  @map("expires_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@map("tokens")
+}
+
+model Course {
+  course_id          Int       @id @default(autoincrement())
+  title              String
+  small_description  String
+  description        String
+  technologies       String
+  image_url          String
+  video_url          String?
+  modules            Module[]
+  progresses         Progress[]
+  isPublished      Boolean   @default(false) 
+   lectures           Lecture[]
+
+  @@map("courses")
+}
+
+model Module {
+  module_id    Int       @id @default(autoincrement())
+  course_id    Int
+  title        String
+  description  String
+  order        Int       @default(1)
+  lectures     Lecture[]
+  course       Course    @relation(fields: [course_id], references: [course_id], onDelete: Cascade)
+
+  @@map("modules")
+}
+
+model Lecture {
+  lecture_id   Int       @id @default(autoincrement())
+  module_id    Int
+  course_id    Int
+  title        String
+  description  String
+  content      String
+  video_url    String
+  order        Int       @default(1)
+  module       Module    @relation(fields: [module_id], references: [module_id], onDelete: Cascade)
+  course       Course    @relation(fields: [course_id], references: [course_id], onDelete: Cascade)
+
+  @@map("lectures")
+}
+
+model Post {
+  post_id      Int       @id @default(autoincrement())
+  title        String
+  description  String
+  date         DateTime  @default(now())
+  image_url    String?
+  category     String
+  content      String
+
+  @@map("posts")
+}
+
+model Progress {
+  progress_id  Int       @id @default(autoincrement())
+  user_id      Int
+  course_id    Int
+  progress     Float     @default(0)
+  user         User      @relation(fields: [user_id], references: [user_id], onDelete: Cascade, name: "UserProgress")
+  course       Course    @relation(fields: [course_id], references: [course_id], onDelete: Cascade)
+
+  @@map("progresses")
+}
+
+enum UserRole {
+  REGULAR
+  ADMIN
+}
+
+enum AuthMethod {
+  CREDENTIALS
+  GOOGLE
+  YANDEX
+}
+
+enum TokenType {
+  VERIFICATION
+  TWO_FACTOR
+  PASSWORD_RESET
+}
