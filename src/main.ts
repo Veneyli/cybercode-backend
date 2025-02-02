@@ -16,13 +16,12 @@ async function bootstrap() {
 
   const port = process.env.PORT || 4000;
 
-  await app.listen(port);
-  .then(() => {
+  try {
+    await app.listen(port);
     console.log(`Сервер запущен на http://localhost:${port}`);
-  })
-  .catch((error) => {
+  } catch (error: unknown) {
     console.error('Ошибка при запуске сервера:', error);
-  });
+  }
 }
 
 bootstrap();
