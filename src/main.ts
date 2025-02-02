@@ -6,12 +6,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    // origin: [
-    //   'http://localhost:3000',
-    //   'http://10.0.1.114:3000',
-    //   'http://cybercode.veney.tech',
-    // ],
-    origin: (process.env.ALLOWED_ORIGIN || '').split(','),
+    origin: 'http://localhost:3000',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
@@ -22,7 +17,12 @@ async function bootstrap() {
   const port = process.env.PORT || 4000;
 
   await app.listen(port);
-  console.log(`Сервер запущен на http://localhost:${port}`);
+  // .then(() => {
+  //   console.log(`Сервер запущен на http://localhost:${port}`);
+  // })
+  // .catch((error) => {
+  //   console.error('Ошибка при запуске сервера:', error);
+  // });
 }
 
 bootstrap();
