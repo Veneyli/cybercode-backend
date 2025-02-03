@@ -29,7 +29,7 @@ export class AppModule implements NestModule {
     consumer
       .apply(
         session({
-          secret: process.env.SESSION_SECRET || 'default_secret',
+          secret: process.env.SESSION_SECRET || 'secret',
           resave: false,
           saveUninitialized: false,
           cookie: {
