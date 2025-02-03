@@ -1,22 +1,35 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
+import * as os from 'os';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://cybercode.veney.tech'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        'http://localhost:3000',
+        'http://cybercode.veney.tech',
+      ];
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
     allowedHeaders:
       'Origin, X-Requested-With, Content-Type, Accept, Authorization',
-    credentials: true,
   });
 
   app.use(cookieParser());
   app.setGlobalPrefix('api');
 
   const port = process.env.PORT || 4000;
+
+  const hostname = os.hostname();
+  console.log(`Сервер работает на хосте: ${hostname}`);
 
   try {
     await app.listen(port);
