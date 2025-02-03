@@ -6,20 +6,16 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: (origin, callback) => {
-      const allowedOrigins = [
-        'http://localhost:3000',
-        'http://cybercode.veney.tech',
-      ];
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
+    origin: ['http://localhost:3000', 'https://cybercode.veney.tech'],
     credentials: true,
-    allowedHeaders:
-      'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+    allowedHeaders: [
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'Authorization',
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   });
 
   app.use(cookieParser());
@@ -29,7 +25,9 @@ async function bootstrap() {
 
   try {
     await app.listen(port);
-    console.log(`Сервер запущен на http://localhost:${port}`);
+    console.log(
+      `Сервер запущен на ${process.env.API_URL || 'http://localhost'}:${port}`,
+    );
   } catch (error: unknown) {
     console.error('Ошибка при запуске сервера:', error);
   }
