@@ -9,7 +9,7 @@ RUN npm ci
 FROM base AS build
 COPY . .
 RUN npx prisma generate
-RUN npx prisma migrate dev --name init
+RUN npx prisma migrate dev
 RUN npm run build
 
 FROM base AS production
